@@ -8,11 +8,11 @@
     <script src="../../html/SharedScripts/edit.js"></script>
     <script language="JavaScript">
         function Initialise() {
-            // Initialization code, if necessary
+
         }
 
         function CleanUp() {
-            // Cleanup code, if necessary
+
         }
 
         function DuplicateVectors() {
@@ -24,22 +24,22 @@
                 return;
             }
 
-            var selectedVector = artcam.VectorSelection.GetSelectedVectors();
-            if (selectedVector.length === 0) {
+            var selectedVectors = artcam.GetSelectedVectorIDs();
+            if (selectedVectors.length === 0) {
                 alert("No vector selected.");
                 return;
             }
 
-            var vectorSize = artcam.VectorGeometry.GetVectorSize(selectedVector[0]);
-            var newLayerName = "Layer_" + vectorSize.width + "x" + vectorSize.height;
+            var vectorSize = artcam.VectorGeometry.GetVectorSize(selectedVectors[0]);
+            var newLayerName = "Layer_" + vectorSize.Width + "x" + vectorSize.Height;
 
             artcam.VectorLayers.CreateLayer(newLayerName);
             artcam.VectorLayers.SetActiveLayer(newLayerName);
 
             for (var i = 0; i < xDuplicates; i++) {
                 for (var j = 0; j < yDuplicates; j++) {
-                    var newVectorID = artcam.VectorSelection.Duplicate(selectedVector[0]);
-                    artcam.VectorTransform.Translate(newVectorID, i * vectorSize.width, j * vectorSize.height);
+                    var newVectorID = artcam.VectorGeometry.DuplicateVector(selectedVectors[0]);
+                    artcam.VectorTransform.Translate(newVectorID, i * vectorSize.Width, j * vectorSize.Height);
                 }
             }
         }
