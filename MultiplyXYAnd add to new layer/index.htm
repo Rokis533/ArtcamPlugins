@@ -1,0 +1,44 @@
+<html>
+
+<head>
+    <title>ArtCAM Duplicator</title>
+    <script src="../../html/SharedScripts/api.js"></script>
+    <script src="../../html/SharedScripts/utils.js"></script>
+    <script src="../../html/SharedScripts/edit.js"></script>
+    <script language="JavaScript">
+        function duplicateVectors() {
+            var x = parseInt(document.getElementById('x_duplicates').value);
+            var y = parseInt(document.getElementById('y_duplicates').value);
+
+            if (isNaN(x) || isNaN(y) || x <= 0 || y <= 0) {
+                alert("Please enter valid positive integers for duplication counts.");
+                return;
+            }
+
+            var originalVectorID = artcam.SelectedVectorID;
+            var originalSize = artcam.GetVectorSize(originalVectorID);
+            var newLayerName = `Size_${originalSize}`;
+            artcam.CreateNewLayer(newLayerName);
+
+            for (var i = 0; i < x; i++) {
+                for (var j = 0; j < y; j++) {
+                    artcam.SelectedVectorID = originalVectorID;
+                    artcam.DuplicateSelectedVector(i * 10, j * 10); // Adjust the offset as needed
+                    artcam.MoveToLayer(newLayerName);
+                }
+            }
+
+            artcam.Refresh();
+        }
+    </script>
+</head>
+
+<body>
+    <h1>ArtCAM Duplicator Tool</h1>
+    <p>Enter the number of duplicates along x and y directions:</p>
+    <input type="text" id="x_duplicates" placeholder="Number of X duplicates">
+    <input type="text" id="y_duplicates" placeholder="Number of Y duplicates">
+    <button onclick="duplicateVectors()">Duplicate Vector</button>
+</body>
+
+</html>
