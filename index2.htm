@@ -33,14 +33,11 @@
     <div align='right' style="MARGIN-RIGHT: 10px">
         <br>
         <!-- Input fields for X and Y values -->
-        X= <input type="number" id="inputX" style="height: 5mm; width: 20mm;"><br>
-        Y= <input type="number" id="inputY" style="height: 5mm; width: 20mm;"><br>
+        X= <input type="number" id="inputX" min="2" value="2" style="height: 5mm; width: 20mm;"><br>
+        Y= <input type="number" id="inputY" min="2" value="2" style="height: 5mm; width: 20mm;"><br>
         <br>
         <!-- Buttons to test individual functionalities -->
         <input type="button" value="Measure Vector Size" onclick="testMeasureVectorSize()">
-        <br>
-        <br>
-        <input type="button" value="Create Layer x=300; y=400" onclick="testCreateSpecificLayer()">
         <br>
         <br>
         <input type="button" value="Create Layer with Measured Size" onclick="testCreateLayerWithSize()">
@@ -64,21 +61,6 @@
             SubclassNumberEditControls();
         }
 
-        function createSpecificLayer() {
-            if (artcam.VectorLayers == null) {
-                artcam.MessageBox(_lc("You need to have a model open to use this AddIn."));
-                return -1;
-            }
-
-            var layerName = "x=300; y=400";
-            var idx = artcam.VectorLayers.Create(0, layerName);
-            if (idx != -1) {
-                var layer = artcam.VectorLayers.GetLayer(idx);
-                layer.color = 0x000000;
-            }
-            return idx;
-        }
-
         function measureVectorSize() {
             var selection = artcam.VectorSelection.Selection;
             if (selection == "") {
@@ -100,6 +82,8 @@
 
             var width = Math.ceil(maxX - minX) + 5;
             var height = Math.ceil(maxY - minY) + 5;
+
+            artcam.VectorSelection.AddToSelection(selection);
 
             return { width: width, height: height };
         }
@@ -139,7 +123,7 @@
                     for (var i = 0; i < currentSelectionArray.length; i++) {
                         artcam.VectorSelection.Selection = currentSelectionArray[i];
                         artcam.MirrorVectors(0, true, false);
-                        artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
+                        artcam.VectorSelection.Move(x * vectorSize.width * 2, y * vectorSize.height * 2);
 
                         if (x % 2 !== 0) {
                             artcam.MirrorVectors(0, false, false);
@@ -156,7 +140,7 @@
             var combinedSelection = originalSelection.split(',').concat(newSelection).join(',');
             artcam.VectorSelection.Selection = combinedSelection;
 
-            var success = artcam.VectorSelection.MoveToLayer(layerIdx);
+            var success = copyToLayer(combinedSelection, layerIdx);
             if (!success) {
                 artcam.MessageBox(_lc("Failed to move vectors to the new layer."));
                 return false;
@@ -164,6 +148,19 @@
 
             return true;
         }
+
+        function copyToLayer(selection, layerIdx) {
+            artcam.VectorSelection.Selection = selection;
+            var vectors = artcam.GetVectorData(selection);
+            artcam.VectorSelection.ClearSelection();
+
+            for (var i = 0; i < vectors.length; i++) {
+                artcam.VectorLayers.GetLayer(layerIdx).AddVector(vectors[i]);
+            }
+
+            return true;
+        }
+
 
         function performMultiplication() {
             var size = measureVectorSize();
@@ -194,13 +191,6 @@
             var size = measureVectorSize();
             if (size) {
                 artcam.MessageBox(_lc("Vector size: width=" + size.width + ", height=" + size.height));
-            }
-        }
-
-        function testCreateSpecificLayer() {
-            var idx = createSpecificLayer();
-            if (idx !== -1) {
-                artcam.MessageBox(_lc("Created layer with predefined coordinates."));
             }
         }
 
