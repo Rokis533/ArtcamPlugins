@@ -122,7 +122,7 @@
 
                         artcam.VectorSelection.Selection = currentSelectionArray[i];
                         artcam.MirrorVectors(0, true, false);
-                        artcam.VectorSelection.Move(x * vectorSize.width * 2, y * vectorSize.height * 2);
+                        artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
 
                         // if (x % 2 !== 0) {
                         //     artcam.MirrorVectors(0, false, false);
@@ -162,7 +162,7 @@
             var success = multiplyVectors(xValue, yValue, size, layerName);
 
             if (success) {
-                artcam.MessageBox(_lc("Vector multiplication complete. Created " + (xValue * yValue - 1) + " copies."));
+                // artcam.MessageBox(_lc("Vector multiplication complete. Created " + (xValue * yValue - 1) + " copies."));
             } else {
                 artcam.MessageBox(_lc("Vector multiplication failed."));
             }
