@@ -124,19 +124,25 @@
                 artcam.MessageBox(_lc("Please select vector first."));
                 return false;
             }
-
-            var selectionArray = selection.split(',');
+            var originalSelection = selection;
 
             for (var y = 0; y < yCount; y++) {
                 for (var x = 0; x < xCount; x++) {
                     if (x === 0 && y === 0) continue;
 
-                    for (var i = 0; i < selectionArray.length; i++) {
-                        artcam.VectorSelection.Selection = selectionArray[i];
-                        artcam.VectorSelection.Copy();
-                        artcam.VectorSelection.Paste();
-                        artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
+                    artcam.VectorSelection.Selection = originalSelection;
+
+                    artcam.MirrorVectors(0, true);
+                    artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
+
+                    if (x % 2 !== 0) {
+                        artcam.MirrorVectors(0, false);
                     }
+                    if (y % 2 !== 0) {
+                        artcam.MirrorVectors(3, false);
+                    }
+
+                    artcam.VectorSelection.AddToSelection(artcam.VectorSelection.Selection);
                 }
             }
 
