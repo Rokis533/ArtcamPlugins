@@ -36,15 +36,21 @@
         X= <input type="number" id="inputX" style="height: 5mm; width: 20mm;"><br>
         Y= <input type="number" id="inputY" style="height: 5mm; width: 20mm;"><br>
         <br>
-        <!-- Button to measure vector size -->
-        <input type="button" value="Measure Vector Size" onclick="measureVectorSize()">
+        <!-- Buttons to test individual functionalities -->
+        <input type="button" value="Measure Vector Size" onclick="testMeasureVectorSize()">
         <br>
         <br>
-        <!-- Button to perform multiplication functionality -->
+        <input type="button" value="Create Layer x=300; y=400" onclick="testCreateSpecificLayer()">
+        <br>
+        <br>
+        <input type="button" value="Create Layer with Measured Size" onclick="testCreateLayerWithSize()">
+        <br>
+        <br>
+        <input type="button" value="Multiply Vectors" onclick="testMultiplyVectors()">
+        <br>
+        <br>
+        <!-- Button to perform all functionalities together -->
         <input type="button" value="Multiplication" onclick="performMultiplication()">
-        <br>
-        <br>
-        <input type="button" value="Create Layer x=300; y=400" onclick="createSpecificLayer()">
         <hr>
         <input type="button" id="CloseButton" onclick="history.back()">
         <script>CloseButton.value = "Close"</script>
@@ -53,32 +59,26 @@
 
     <!-- Scripting Area - Put your Script functions in here ----------------------->
     <script>
-
-        // Initialise function.
         function Initialise() {
             SetHeaderTitle('Vector Layer Template', './Vector Layer Template/icon.gif');
             SubclassNumberEditControls();
-            // Additional initialisation code removed for brevity
         }
 
-        // Function to create a specific layer with predefined coordinates.
         function createSpecificLayer() {
             if (artcam.VectorLayers == null) {
-                artcam.Messagebox(_lc("You need to have a model open to use this AddIn."));
-                return;
+                artcam.MessageBox(_lc("You need to have a model open to use this AddIn."));
+                return -1;
             }
 
             var layerName = "x=300; y=400";
             var idx = artcam.VectorLayers.Create(0, layerName);
             if (idx != -1) {
                 var layer = artcam.VectorLayers.GetLayer(idx);
-                layer.color = 0x000000; // Default color: black in hex
-                // MoveLayer method might not exist. This is a placeholder.
-                // You might need to manually set the vectors in the layer to position it.
+                layer.color = 0x000000;
             }
+            return idx;
         }
 
-        // Function to measure vector size and create a layer with those dimensions.
         function measureVectorSize() {
             var selection = artcam.VectorSelection.Selection;
             if (selection == "") {
@@ -118,7 +118,8 @@
             }
             return idx;
         }
-        function multiplyVectors(xCount, yCount, vectorSize) {
+
+        function multiplyVectors(xCount, yCount, vectorSize, layerIdx) {
             var vselection = artcam.VectorSelection;
             if (vselection.Selection == "") {
                 artcam.MessageBox(_lc("Please select a vector first."));
@@ -138,7 +139,7 @@
                     for (var i = 0; i < currentSelectionArray.length; i++) {
                         artcam.VectorSelection.Selection = currentSelectionArray[i];
                         artcam.MirrorVectors(0, true, false);
-                        artcam.VectorSelection.Move(x * vectorSize.width * 2, y * vectorSize.height * 2);
+                        artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
 
                         if (x % 2 !== 0) {
                             artcam.MirrorVectors(0, false, false);
@@ -151,12 +152,19 @@
                     }
                 }
             }
+
             var combinedSelection = originalSelection.split(',').concat(newSelection).join(',');
             artcam.VectorSelection.Selection = combinedSelection;
+
+            var success = artcam.VectorSelection.MoveToLayer(layerIdx);
+            if (!success) {
+                artcam.MessageBox(_lc("Failed to move vectors to the new layer."));
+                return false;
+            }
+
             return true;
         }
 
-        // Placeholder for the multiplication functionality
         function performMultiplication() {
             var size = measureVectorSize();
             if (size === null) return;
@@ -172,12 +180,61 @@
                 return;
             }
 
-            var success = multiplyVectors(xCount, yCount, size);
+            var success = multiplyVectors(xValue, yValue, size, layerIdx);
 
             if (success) {
-                artcam.MessageBox(_lc("Vector multiplication complete. Created " + (xCount * yCount - 1) + " copies."));
+                artcam.MessageBox(_lc("Vector multiplication complete. Created " + (xValue * yValue - 1) + " copies."));
             } else {
                 artcam.MessageBox(_lc("Vector multiplication failed."));
+            }
+        }
+
+        // Test functions for individual functionalities
+        function testMeasureVectorSize() {
+            var size = measureVectorSize();
+            if (size) {
+                artcam.MessageBox(_lc("Vector size: width=" + size.width + ", height=" + size.height));
+            }
+        }
+
+        function testCreateSpecificLayer() {
+            var idx = createSpecificLayer();
+            if (idx !== -1) {
+                artcam.MessageBox(_lc("Created layer with predefined coordinates."));
+            }
+        }
+
+        function testCreateLayerWithSize() {
+            var size = measureVectorSize();
+            if (size === null) return;
+
+            var idx = createLayerWithSize(size.width, size.height);
+            if (idx !== -1) {
+                artcam.MessageBox(_lc("Created layer with measured size: width=" + size.width + ", height=" + size.height));
+            }
+        }
+
+        function testMultiplyVectors() {
+            var size = measureVectorSize();
+            if (size === null) return;
+
+            var layerIdx = createLayerWithSize(size.width, size.height);
+            if (layerIdx === -1) return;
+
+            var xValue = parseFloat(document.getElementById("inputX").value);
+            var yValue = parseFloat(document.getElementById("inputY").value);
+
+            if (isNaN(xValue) || isNaN(yValue)) {
+                artcam.MessageBox(_lc("Please enter valid numbers for X and Y."));
+                return;
+            }
+
+            var success = multiplyVectors(xValue, yValue, size, layerIdx);
+
+            if (success) {
+                artcam.MessageBox(_lc("Vector multiplication test complete. Created " + (xValue * yValue - 1) + " copies."));
+            } else {
+                artcam.MessageBox(_lc("Vector multiplication test failed."));
             }
         }
 
