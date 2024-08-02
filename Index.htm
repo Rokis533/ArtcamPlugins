@@ -1,157 +1,173 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <!-- Load Scripts DO NOT ALTER -->
-  <script src='../../html/SharedScripts/api.js'></script>
-  <script src='../../html/SharedScripts/utils.js'></script>
-  <script src='../../html/SharedScripts/edit.js'></script>
+    <!-- Load Scripts DO NOT ALTER -->
+    <script src='../../html/SharedScripts/api.js'></script>
+    <script src='../../html/SharedScripts/utils.js'></script>
+    <script src='../../html/SharedScripts/edit.js'></script>
 
-  <script src="../../html/ai.Widgets/jquery.js"></script>
-  <script src="../../html/ai.Widgets/ai.js"></script>
-  <script src="../../html/ai.Widgets/ai.select.js"></script>
-  <script src="LayoutTools.js"></script>
-  <script src="ToShapes.atext"></script>
+    <script src="../../html/ai.Widgets/jquery.js"></script>
+    <script src="../../html/ai.Widgets/ai.js"></script>
+    <script src="../../html/ai.Widgets/ai.select.js"></script>
+    <script src="LayoutTools.js"></script>
+    <script src="ToShapes.atext"></script>
 
-  <!-- Setup styles DO NOT ALTER -->
-  <link href='styles.css' rel="stylesheet">
+    <!-- Setup styles DO NOT ALTER -->
+    <link href='styles.css' rel="stylesheet">
 </head>
+
 <body onLoad='Initialise()'>
 
-<!-- Put your HTML here ------------------------------------------------------->
-   <script>
-   ai.Heading(_lc("Multiplikavimas"));
-   ai.VBox();
-      ai.HBox();
-      ai.End();
-   ai.End();
-   <!-- Additional code removed for brevity -->
-   </script>                 
+    <!-- Put your HTML here ------------------------------------------------------->
+    <script>
+        ai.Heading(_lc("Multiplikavimas"));
+        ai.VBox();
+        ai.HBox();
+        ai.End();
+        ai.End();
+        <!-- Additional code removed for brevity -->
+    </script>
 
-<!-- Input fields and buttons for vector size and multiplication -->
-<div align='right' style="MARGIN-RIGHT: 10px">
- <br>
- <!-- Input fields for X and Y values -->
- X= <input type="number" id="inputX" style="height: 5mm; width: 20mm;"><br>
- Y= <input type="number" id="inputY" style="height: 5mm; width: 20mm;"><br>
- <br>
- <!-- Button to measure vector size -->
- <input type="button" value="Measure Vector Size" onclick="measureVectorSize()">
- <br>
- <br>
- <!-- Button to perform multiplication functionality -->
- <input type="button" value="Multiplication" onclick="performMultiplication()">
- <br>
- <br>
- <input type="button" value="Create Layer x=300; y=400" onclick="createSpecificLayer()">
- <hr>
- <input type="button" id="CloseButton" onclick="history.back()">
- <script>CloseButton.value="Close"</script>
- <p></p>
-</div>
+    <!-- Input fields and buttons for vector size and multiplication -->
+    <div align='right' style="MARGIN-RIGHT: 10px">
+        <br>
+        <!-- Input fields for X and Y values -->
+        X= <input type="number" id="inputX" style="height: 5mm; width: 20mm;"><br>
+        Y= <input type="number" id="inputY" style="height: 5mm; width: 20mm;"><br>
+        <br>
+        <!-- Button to measure vector size -->
+        <input type="button" value="Measure Vector Size" onclick="measureVectorSize()">
+        <br>
+        <br>
+        <!-- Button to perform multiplication functionality -->
+        <input type="button" value="Multiplication" onclick="performMultiplication()">
+        <br>
+        <br>
+        <input type="button" value="Create Layer x=300; y=400" onclick="createSpecificLayer()">
+        <hr>
+        <input type="button" id="CloseButton" onclick="history.back()">
+        <script>CloseButton.value = "Close"</script>
+        <p></p>
+    </div>
 
-<!-- Scripting Area - Put your Script functions in here ----------------------->
-<script>
+    <!-- Scripting Area - Put your Script functions in here ----------------------->
+    <script>
 
-// Initialise function.
-function Initialise()
-{
-   SetHeaderTitle('Vector Layer Template','./Vector Layer Template/icon.gif');
-   SubclassNumberEditControls();
-   // Additional initialisation code removed for brevity
-}
+        // Initialise function.
+        function Initialise() {
+            SetHeaderTitle('Vector Layer Template', './Vector Layer Template/icon.gif');
+            SubclassNumberEditControls();
+            // Additional initialisation code removed for brevity
+        }
 
-// Function to create a specific layer with predefined coordinates.
-function createSpecificLayer()
-{
-    if (artcam.VectorLayers == null)
-    {
-        artcam.Messagebox(_lc("You need to have a model open to use this AddIn."));
-        return;
-    }
+        // Function to create a specific layer with predefined coordinates.
+        function createSpecificLayer() {
+            if (artcam.VectorLayers == null) {
+                artcam.Messagebox(_lc("You need to have a model open to use this AddIn."));
+                return;
+            }
 
-    var layerName = "x=300; y=400";
-    var idx = artcam.VectorLayers.Create(0, layerName);
-    if (idx != -1)
-    {
-        var layer = artcam.VectorLayers.GetLayer(idx);
-        layer.color = 0x000000; // Default color: black in hex
-        // MoveLayer method might not exist. This is a placeholder.
-        // You might need to manually set the vectors in the layer to position it.
-    }
-}
+            var layerName = "x=300; y=400";
+            var idx = artcam.VectorLayers.Create(0, layerName);
+            if (idx != -1) {
+                var layer = artcam.VectorLayers.GetLayer(idx);
+                layer.color = 0x000000; // Default color: black in hex
+                // MoveLayer method might not exist. This is a placeholder.
+                // You might need to manually set the vectors in the layer to position it.
+            }
+        }
 
-// Function to measure vector size and create a layer with those dimensions.
-function measureVectorSize()
-{
-    var selection = artcam.VectorSelection.Selection;
-    if (selection == "")
-    {
-        artcam.MessageBox(_lc("Please select vector first."));
-        return;
-    }
+        // Function to measure vector size and create a layer with those dimensions.
+        function measureVectorSize() {
+            var selection = artcam.VectorSelection.Selection;
+            if (selection == "") {
+                artcam.MessageBox(_lc("Please select vector first."));
+                return null;
+            }
 
-    var selectionArray = selection.split(',');
-    var minX = Number.MAX_VALUE, minY = Number.MAX_VALUE;
-    var maxX = Number.MIN_VALUE, maxY = Number.MIN_VALUE;
+            var selectionArray = selection.split(',');
+            var minX = Number.MAX_VALUE, minY = Number.MAX_VALUE;
+            var maxX = Number.MIN_VALUE, maxY = Number.MIN_VALUE;
 
-    for (var i = 0; i < selectionArray.length; i++) {
-        artcam.VectorSelection.Selection = selectionArray[i];
-        minX = Math.min(minX, artcam.SelectionMinX);
-        minY = Math.min(minY, artcam.SelectionMinY);
-        maxX = Math.max(maxX, artcam.SelectionMaxX);
-        maxY = Math.max(maxY, artcam.SelectionMaxY);
-    }
+            for (var i = 0; i < selectionArray.length; i++) {
+                artcam.VectorSelection.Selection = selectionArray[i];
+                minX = Math.min(minX, artcam.SelectionMinX);
+                minY = Math.min(minY, artcam.SelectionMinY);
+                maxX = Math.max(maxX, artcam.SelectionMaxX);
+                maxY = Math.max(maxY, artcam.SelectionMaxY);
+            }
 
-    var width = maxX - minX;
-    var height = maxY - minY;
+            var width = Math.ceil(maxX - minX) + 5;
+            var height = Math.ceil(maxY - minY) + 5;
 
-    if (width <= 0 || height <= 0)
-    {
-        artcam.MessageBox(_lc("Invalid vector dimensions."));
-        return;
-    }
+            return { width: width, height: height };
+        }
 
-    // Round up the width and height to the nearest whole number
-    width = Math.ceil(width);
-    height = Math.ceil(height);
+        function createLayerWithSize(width, height) {
+            if (width <= 0 || height <= 0) {
+                artcam.MessageBox(_lc("Invalid vector dimensions."));
+                return -1;
+            }
 
-    // Add 5 to both width and height
-    width += 5;
-    height += 5;
+            var layerName = "x=" + width + "; y=" + height;
+            var idx = artcam.VectorLayers.Create(0, layerName);
+            if (idx != -1) {
+                var layer = artcam.VectorLayers.GetLayer(idx);
+                layer.color = 0x000000;
+            }
+            return idx;
+        }
+        function multiplyVectors(xCount, yCount, vectorSize) {
+            var selection = artcam.VectorSelection.Selection;
+            if (selection == "") {
+                artcam.MessageBox(_lc("Please select vector first."));
+                return false;
+            }
 
-    var layerName = "x=" + width + "; y=" + height;
-    var idx = artcam.VectorLayers.Create(0, layerName);
-    if (idx != -1)
-    {
-        var layer = artcam.VectorLayers.GetLayer(idx);
-        layer.color = 0x000000; // Default color: black in hex
-    }
-}
+            var selectionArray = selection.split(',');
 
-// Placeholder for the multiplication functionality
-function performMultiplication()
-{
-    var xValue = parseFloat(document.getElementById("inputX").value);
-    var yValue = parseFloat(document.getElementById("inputY").value);
+            for (var y = 0; y < yCount; y++) {
+                for (var x = 0; x < xCount; x++) {
+                    if (x === 0 && y === 0) continue;
 
-    if (isNaN(xValue) || isNaN(yValue)) {
-        artcam.MessageBox(_lc("Please enter valid numbers for X and Y."));
-        return;
-    }
+                    for (var i = 0; i < selectionArray.length; i++) {
+                        artcam.VectorSelection.Selection = selectionArray[i];
+                        artcam.VectorSelection.Copy();
+                        artcam.VectorSelection.Paste();
+                        artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
+                    }
+                }
+            }
 
-    // Placeholder logic for multiplication functionality
-    var resultX = xValue; // Modify this logic as needed
-    var resultY = yValue; // Modify this logic as needed
+            return true;
+        }
+        // Placeholder for the multiplication functionality
+        function performMultiplication() {
+            var size = measureVectorSize();
+            if (size === null) return;
 
-    var layerName = "x=" + resultX + "; y=" + resultY;
-    var idx = artcam.VectorLayers.Create(0, layerName);
-    if (idx != -1)
-    {
-        var layer = artcam.VectorLayers.GetLayer(idx);
-        layer.color = 0x000000; // Default color: black in hex
-    }
-}
+            var layerIdx = createLayerWithSize(size.width, size.height);
+            if (layerIdx === -1) return;
 
-</script>
+            var xValue = parseFloat(document.getElementById("inputX").value);
+            var yValue = parseFloat(document.getElementById("inputY").value);
+
+            if (isNaN(xValue) || isNaN(yValue)) {
+                artcam.MessageBox(_lc("Please enter valid numbers for X and Y."));
+                return;
+            }
+
+            var success = multiplyVectors(xCount, yCount, size);
+
+            if (success) {
+                artcam.MessageBox(_lc("Vector multiplication complete. Created " + (xCount * yCount - 1) + " copies."));
+            } else {
+                artcam.MessageBox(_lc("Vector multiplication failed."));
+            }
+        }
+
+    </script>
 </body>
+
 </html>
