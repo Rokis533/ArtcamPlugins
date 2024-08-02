@@ -121,7 +121,7 @@
         function multiplyVectors(xCount, yCount, vectorSize) {
             var selection = artcam.VectorSelection.Selection;
             if (selection == "") {
-                artcam.MessageBox(_lc("Please select vector first."));
+                artcam.MessageBox(_lc("Please select a vector first."));
                 return false;
             }
             var originalSelection = selection;
@@ -132,17 +132,21 @@
 
                     artcam.VectorSelection.Selection = originalSelection;
 
-                    artcam.MirrorVectors(0, true);
-                    artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
+                    // Mirror and move each selected vector
+                    for (var i = 0; i < selectionArray.length; i++) {
+                        artcam.VectorSelection.Selection = selectionArray[i];
+                        artcam.MirrorVectors(0, true, false);
+                        artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
 
-                    if (x % 2 !== 0) {
-                        artcam.MirrorVectors(0, false);
-                    }
-                    if (y % 2 !== 0) {
-                        artcam.MirrorVectors(3, false);
-                    }
+                        if (x % 2 !== 0) {
+                            artcam.MirrorVectors(0, false, false);
+                        }
+                        if (y % 2 !== 0) {
+                            artcam.MirrorVectors(3, false, false);
+                        }
 
-                    artcam.VectorSelection.AddToSelection(artcam.VectorSelection.Selection);
+                        artcam.VectorSelection.AddToSelection(artcam.VectorSelection.Selection);
+                    }
                 }
             }
 
