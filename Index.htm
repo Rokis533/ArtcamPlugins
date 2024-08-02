@@ -119,12 +119,13 @@
             return idx;
         }
         function multiplyVectors(xCount, yCount, vectorSize) {
-            var selection = artcam.VectorSelection.Selection;
-            if (selection == "") {
+            var vselection = artcam.VectorSelection;
+            if (vselection.Selection == "") {
                 artcam.MessageBox(_lc("Please select a vector first."));
                 return false;
             }
-            var originalSelection = selection;
+            var originalSelection = vselection.Selection;
+            var newSelection = [];
 
             for (var y = 0; y < yCount; y++) {
                 for (var x = 0; x < xCount; x++) {
@@ -132,9 +133,10 @@
 
                     artcam.VectorSelection.Selection = originalSelection;
 
-                    // Mirror and move each selected vector
-                    for (var i = 0; i < selectionArray.length; i++) {
-                        artcam.VectorSelection.Selection = selectionArray[i];
+                    var currentSelectionArray = artcam.VectorSelection.Selection.split(',');
+
+                    for (var i = 0; i < currentSelectionArray.length; i++) {
+                        artcam.VectorSelection.Selection = currentSelectionArray[i];
                         artcam.MirrorVectors(0, true, false);
                         artcam.VectorSelection.Move(x * vectorSize.width, y * vectorSize.height);
 
@@ -145,13 +147,15 @@
                             artcam.MirrorVectors(3, false, false);
                         }
 
-                        artcam.VectorSelection.AddToSelection(artcam.VectorSelection.Selection);
+                        newSelection.push(artcam.VectorSelection.Selection);
                     }
                 }
             }
-
+            var combinedSelection = originalSelection.split(',').concat(newSelection).join(',');
+            artcam.VectorSelection.Selection = combinedSelection;
             return true;
         }
+
         // Placeholder for the multiplication functionality
         function performMultiplication() {
             var size = measureVectorSize();
